@@ -6,6 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import LikedSubmissions from './LikedSubmissions';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
+import _cloneDeep from 'lodash.clonedeep';
 import {
   onMessage,
   saveLikedFormSubmission,
@@ -80,11 +81,9 @@ export default function Content() {
   }
 
   async function onLikeNewSubmission() {
-    const formSubmission = {
-      ...newFormSubmission,
-      liked: true,
-    }
+    let formSubmission = _cloneDeep(newFormSubmission)
 
+    formSubmission.data.liked = true
     setLikeFailed(false);
 
     try {
@@ -93,6 +92,10 @@ export default function Content() {
       setLikePending(false);
       setNewFormSubmission({});
       setDisplayToast(false);
+      setLikedSubmissions([
+        ..._cloneDeep(likedSubmissions),
+        formSubmission,
+      ])
     } catch(e) {
       setLikePending(false);
       setLikeFailed(true);
