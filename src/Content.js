@@ -5,7 +5,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
-import { onMessage } from './service/mockServer';
+import {
+  onMessage,
+  saveLikedFormSubmission,
+} from './service/mockServer';
 
 function getNewFormSubmissionMessage(formSubmission) {
   if (!formSubmission || !formSubmission.data) {
@@ -21,6 +24,8 @@ function getNewFormSubmissionMessage(formSubmission) {
 export default function Content() {
   const [newFormSubmission, setNewFormSubmission] = useState({});
   const [displayToast, setDisplayToast] = useState(false);
+  const [likeFailed, setLikeFailed] = useState(false);
+  const [likePending, setLikePending] = useState(false);
 
   useEffect(() => {
     function onNewFormSubmission(formSubmission) {
@@ -51,16 +56,41 @@ export default function Content() {
 
     setDisplayToast(false);
     setNewFormSubmission({});
+    setLikeFailed(false);
   }
 
-  function onLikeNewSubmission() {
-    // TODO: implement
+  async function onLikeNewSubmission() {
+    const formSubmission = {
+      ...newFormSubmission,
+      liked: true,
+    }
+
+    setLikeFailed(false);
+
+    try {
+      setLikePending(true);
+      await saveLikedFormSubmission(formSubmission);
+      setLikePending(false);
+      setNewFormSubmission({});
+      setDisplayToast(false);
+    } catch(e) {
+      setLikePending(false);
+      setLikeFailed(true);
+    }
   }
 
   const toastAction = (
     <React.Fragment>
-      <Button onClick={onLikeNewSubmission}>Like</Button>
-      <IconButton onClick={handleCloseToast}>
+      <Button
+        disabled={likePending}
+        onClick={onLikeNewSubmission}
+      >
+        {likeFailed ? 'Oops, please try again...Like' : 'Like'}
+      </Button>
+      <IconButton
+        disabled={likePending}
+        onClick={handleCloseToast}
+      >
         <CloseIcon />
       </IconButton>
     </React.Fragment>
