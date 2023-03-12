@@ -3,11 +3,13 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
+import LikedSubmissions from './LikedSubmissions';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import {
   onMessage,
   saveLikedFormSubmission,
+  fetchLikedFormSubmissions,
 } from './service/mockServer';
 
 function getNewFormSubmissionMessage(formSubmission) {
@@ -26,6 +28,9 @@ export default function Content() {
   const [displayToast, setDisplayToast] = useState(false);
   const [likeFailed, setLikeFailed] = useState(false);
   const [likePending, setLikePending] = useState(false);
+  const [fetchLikedPending, setFetchLikedPending] = useState(false);
+  const [fetchLikedFailed, setFetchLikedFailed] = useState(false);
+  const [likedSubmissions, setLikedSubmissions] = useState([]);
 
   useEffect(() => {
     function onNewFormSubmission(formSubmission) {
@@ -40,6 +45,21 @@ export default function Content() {
     // there shouldn't be a memory leak in this case but it would
     // still be good practice to unregister the callback.
   }, []);
+
+  useEffect(() => {
+    async function fetchLiked() {
+      setFetchLikedPending(true);
+      try {
+        const response = await fetchLikedFormSubmissions();
+        setLikedSubmissions(response.formSubmissions);
+      } catch(e) {
+        setFetchLikedFailed(true);
+      }
+      setFetchLikedPending(false);
+    }
+
+    fetchLiked();
+  }, [])
 
   useEffect(() => {
     if (newFormSubmission.id === undefined) {
@@ -99,10 +119,11 @@ export default function Content() {
   return (
     <Box sx={{marginTop: 3}}>
       <Typography variant="h4">Liked Form Submissions</Typography>
-
-      <Typography variant="body1" sx={{fontStyle: 'italic', marginTop: 1}}>
-        TODO: List of liked submissions here (delete this line)
-      </Typography>
+      <LikedSubmissions
+        submissions={likedSubmissions}
+        fetchLikedFailed={fetchLikedFailed}
+        fetchLikedPending={fetchLikedPending}
+      />
       <Snackbar
         open={displayToast}
         anchorOrigin={{
