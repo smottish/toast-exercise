@@ -34,6 +34,7 @@ export default function FormSubmissionToast({
       <IconButton
         disabled={likePending}
         onClick={onClose}
+        sx={{ color: 'white' }}
       >
         <CloseIcon />
       </IconButton>
