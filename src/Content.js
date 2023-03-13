@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import CloseIcon from '@mui/icons-material/Close';
-import IconButton from '@mui/material/IconButton';
+import FormSubmissionToast from './FormSubmissionToast';
 import LikedSubmissions from './LikedSubmissions';
-import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import _cloneDeep from 'lodash.clonedeep';
 import {
@@ -12,17 +9,6 @@ import {
   saveLikedFormSubmission,
   fetchLikedFormSubmissions,
 } from './service/mockServer';
-
-function getNewFormSubmissionMessage(formSubmission) {
-  if (!formSubmission || !formSubmission.data) {
-    return ""
-  }
-
-  const firstName = formSubmission.data.firstName;
-  const lastName = formSubmission.data.lastName;
-  const email = formSubmission.data.email;
-  return `${firstName} ${lastName} ${email}`
-}
 
 export default function Content() {
   const [newFormSubmission, setNewFormSubmission] = useState({});
@@ -102,23 +88,6 @@ export default function Content() {
     }
   }
 
-  const toastAction = (
-    <React.Fragment>
-      <Button
-        disabled={likePending}
-        onClick={onLikeNewSubmission}
-      >
-        {likeFailed ? 'Oops, please try again...Like' : 'Like'}
-      </Button>
-      <IconButton
-        disabled={likePending}
-        onClick={handleCloseToast}
-      >
-        <CloseIcon />
-      </IconButton>
-    </React.Fragment>
-  );
-
   return (
     <Box sx={{marginTop: 3}}>
       <Typography variant="h4">Liked Form Submissions</Typography>
@@ -127,15 +96,13 @@ export default function Content() {
         fetchLikedFailed={fetchLikedFailed}
         fetchLikedPending={fetchLikedPending}
       />
-      <Snackbar
+      <FormSubmissionToast
         open={displayToast}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        message={getNewFormSubmissionMessage(newFormSubmission)}
+        formSubmission={newFormSubmission}
+        likeFailed={likeFailed}
+        likePending={likePending}
+        onLike={onLikeNewSubmission}
         onClose={handleCloseToast}
-        action={toastAction}
       />
     </Box>
   );
