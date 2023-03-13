@@ -35,7 +35,7 @@ export default function LikedSubmissions({
   }
 
   return submissions.map((submission) => (
-    <Typography key={submission.id}>
+    <Typography key={submission.id} data-testid="liked-submission">
       {getLikedSubmissionText(submission)}
     </Typography>
   ))
